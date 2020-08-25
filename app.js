@@ -4,6 +4,9 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
+const util = require("util");
+
+const writeFileAsync = util.promisify(fs.writeFile);
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
@@ -12,9 +15,10 @@ const render = require("./lib/htmlRenderer");
 
 const teamData = [];
 
+
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
-function createMember () { 
+function createEmployee () { 
     return inquirer.prompt([ 
         { 
             type: "input", 
@@ -39,7 +43,7 @@ function createMember () {
         }
     ]) 
 };
-function creatManager () {
+function createManager () {
     return inquirer.prompt ([
         {
             type: "input",
@@ -53,6 +57,20 @@ function creatManager () {
             choices: ["Yes", "No"]
         },
     ])
+    .then(function(data){
+
+        officeNumber = data.officeNumber;
+        const manager = new Manager(name, id, email, officeNumber);
+        teamData.push(manager);
+
+        if(data.addEmployee[0] === "Yes"){  
+            init();  
+        }
+        else{
+            render(teamData);
+            createHtml();
+        }
+    });
 };
 function createEngineer () {
     return inquirer.prompt ([
@@ -68,6 +86,20 @@ function createEngineer () {
             choices: ["Yes", "No"]
         },
     ])
+    .then(function(data){
+
+        github = data.github; 
+        const engineer = new Manager(name, id, email, github);
+        teamData.push(engineer);
+
+        if(data.addEmployee[0] === "Yes"){  
+            init();  
+        }
+        else{
+            render(teamData);
+            createHtml();
+        }
+    });
 };
 function createIntern () {
     return inquirer.prompt ([
@@ -83,8 +115,60 @@ function createIntern () {
             choices: ["Yes", "No"]
         },
     ])
+    .then(function(data){
+
+        school = data.school; 
+        const intern = new Manager(name, id, email, school);
+        teamData.push(intern);
+
+        if(data.addEmployee[0] === "Yes"){  
+            init();  
+        }
+        else{
+            render(teamData);
+            createHtml();
+        }
+    });
 };
-// After the user has input all employees desired, call the `render` function (required
+
+async function createHtml(){
+    const html = render(teamData);
+
+    await writeFileAsync (outputPath,html);
+
+    console.log("Successfully wrote team.html")
+
+}
+
+//intialize 
+async function init(){
+    try{
+        const member = await createEmployee();
+        name = member.name;
+        id = member.id;
+        role = member.role;
+        email = member.email;
+
+        if(role[0] === "Manager"){
+            createManager();
+        }
+        else if (role[0] === "Engineer"){
+            createEngineer();
+        }
+        else if (role[0] === "Intern"){
+            createIntern();
+        }
+    }
+    catch(err){
+        console.log(err);
+    }
+};
+  
+  //function call to initialize program
+  init();
+
+
+  // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
 
