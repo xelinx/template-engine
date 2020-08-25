@@ -89,7 +89,7 @@ function createEngineer () {
     .then(function(data){
 
         github = data.github; 
-        const engineer = new Manager(name, id, email, github);
+        const engineer = new Engineer(name, id, email, github);
         teamData.push(engineer);
 
         if(data.addEmployee[0] === "Yes"){  
@@ -118,7 +118,7 @@ function createIntern () {
     .then(function(data){
 
         school = data.school; 
-        const intern = new Manager(name, id, email, school);
+        const intern = new Intern(name, id, email, school);
         teamData.push(intern);
 
         if(data.addEmployee[0] === "Yes"){  
@@ -131,6 +131,7 @@ function createIntern () {
     });
 };
 
+//createHTML
 async function createHtml(){
     const html = render(teamData);
 
