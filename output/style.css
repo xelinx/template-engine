@@ -4,8 +4,10 @@ body {
 
 .team-heading {
     background-color: burlywood;
+    color: white;
 }
 
 .card-header {
     background-color: thistle;
+    color: white;
 }
